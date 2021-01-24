@@ -34,7 +34,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    """List all available api routes."""
+    #List all available api routes
     return (
         f"Climate App<br/><br/>"
         f"Here is a list of all available routes:<br/><br/>"
@@ -44,6 +44,38 @@ def home():
         f"/api/v1.0/start<br/>"
         f"/api/v1.0/start/end"
     )
+
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    #Last 12 months of precipitation data and plot the results
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a list of all passenger names"""
+    # Query all passengers
+    results = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date >= "2016-08-23").\
+                                                                    filter(Measurement.date <= "2017-08-23").all()
+
+    #Close session
+    session.close()
+
+    # Create empty list
+    all_prcp = []
+    
+    #Create loop to read in values
+    for date,prcp  in results:
+        # Create empty dictionary
+        prcp_dict = {}
+        # Add dictionary values
+        prcp_dict["date"] = date
+        prcp_dict["prcp"] = prcp
+        # Add dictionaries to list       
+        all_prcp.append(prcp_dict)
+
+    return jsonify(all_prcp)
+    
+
 
 if __name__ == "__main__":
     app.run(debug=True)
