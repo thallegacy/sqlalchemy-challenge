@@ -52,8 +52,7 @@ def precipitation():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    """Return a list of all passenger names"""
-    # Query all passengers
+    #Query Data
     results = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date >= "2016-08-23").\
                                                                     filter(Measurement.date <= "2017-08-23").all()
 
@@ -74,8 +73,34 @@ def precipitation():
         all_prcp.append(prcp_dict)
 
     return jsonify(all_prcp)
-    
 
+@app.route("/api/v1.0/stations")
+def stations():
+    #List of stations
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    #Query Data
+    results = session.query(Station.station, Station.name).all()
+
+    #Close session
+    session.close()
+
+    # Create empty list
+    all_stations = []
+    
+    #Create loop to read in values
+    for station,name  in results:
+        # Create empty dictionary
+        station_dict = {}
+        # Add dictionary values
+        station_dict["station"] = station
+        station_dict["name"] = name
+        # Add dictionaries to list       
+        all_stations.append(station_dict)
+
+    return jsonify(all_stations)
 
 if __name__ == "__main__":
     app.run(debug=True)
