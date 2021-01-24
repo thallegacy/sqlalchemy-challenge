@@ -161,8 +161,40 @@ def start_date(start):
         starttobs_dict["TMAX"] = tmax
         # Add dictionaries to list       
         all_start_dates.append(starttobs_dict)
-        
+
     return jsonify(all_start_dates)
+
+@app.route("/api/v1.0/<start>/<end>")
+def startend_date(start, end):
+    # given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    #Query Data
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                                                                            filter(Measurement.date >= start).\
+                                                                            filter(Measurement.date <= end).all()
+
+    #Close session
+    session.close()
+
+    # Create empty list
+    all_startend_dates = []
+    
+    #Create loop to read in values
+    for tmin, tavg, tmax  in results:
+        # Create empty dictionary
+        startendtobs_dict = {}
+        # Add dictionary values
+        startendtobs_dict["TMIN"] = tmin
+        startendtobs_dict["TAVG"] = tavg
+        startendtobs_dict["TMAX"] = tmax
+        # Add dictionaries to list       
+        all_startend_dates.append(startendtobs_dict)
+
+    return jsonify(all_startend_dates)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
