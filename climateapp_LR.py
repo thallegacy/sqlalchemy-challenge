@@ -41,8 +41,10 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/start<br/>"
-        f"/api/v1.0/start/end"
+        f"/api/v1.0/start_date<br/>"
+        f"/api/v1.0/start_date/end_date<br/><br/>"
+        f"For the routes above with start or end dates please use the (yyyy-mm-dd) format"
+        
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -101,6 +103,66 @@ def stations():
         all_stations.append(station_dict)
 
     return jsonify(all_stations)
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    #Dates and temperature observations of the most active station for the last year of data.
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    #Query Data
+    results = session.query(Measurement.date, Measurement.tobs).filter(Measurement.station == 'USC00519281').\
+                                                                    filter(Measurement.date >= "2016-08-23").\
+                                                                    filter(Measurement.date <= "2017-08-23").all()
+
+    #Close session
+    session.close()
+
+    # Create empty list
+    all_tobs = []
+    
+    #Create loop to read in values
+    for date,tobs  in results:
+        # Create empty dictionary
+        tobs_dict = {}
+        # Add dictionary values
+        tobs_dict["date"] = date
+        tobs_dict["tobs"] = tobs
+        # Add dictionaries to list       
+        all_tobs.append(tobs_dict)
+
+    return jsonify(all_tobs)
+
+@app.route("/api/v1.0/<start>")
+def start_date(start):
+    # given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    #Query Data
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                                                                            filter(Measurement.date >= start).all()
+
+    #Close session
+    session.close()
+
+    # Create empty list
+    all_start_dates = []
+    
+    #Create loop to read in values
+    for tmin, tavg, tmax  in results:
+        # Create empty dictionary
+        starttobs_dict = {}
+        # Add dictionary values
+        starttobs_dict["TMIN"] = tmin
+        starttobs_dict["TAVG"] = tavg
+        starttobs_dict["TMAX"] = tmax
+        # Add dictionaries to list       
+        all_start_dates.append(starttobs_dict)
+        
+    return jsonify(all_start_dates)
 
 if __name__ == "__main__":
     app.run(debug=True)
