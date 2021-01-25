@@ -38,10 +38,15 @@ def home():
     return (
         f"Climate App<br/><br/>"
         f"Here is a list of all available routes:<br/><br/>"
-        f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/start_date<br/>"
+        f"Last 12 months of precipitation data <br/>"
+        f"/api/v1.0/precipitation<br/><br/>"
+        f"List of Stations <br/>"
+        f"/api/v1.0/stations<br/><br/>"
+        f"Dates and temperature observations of the most active station for the last year of data <br/>"
+        f"/api/v1.0/tobs<br/><br/>"
+        f" MIN, AVERAGE, and MAX for all dates greater than and equal to the date <br/>"
+        f"/api/v1.0/start_date<br/><br/>"
+        f" MIN, AVERAGE, and MAX between the start and end date inclusive <br/>"
         f"/api/v1.0/start_date/end_date<br/><br/>"
         f"For the routes above with start or end dates please use the (yyyy-mm-dd) format"
         
@@ -166,7 +171,7 @@ def start_date(start):
 
 @app.route("/api/v1.0/<start>/<end>")
 def startend_date(start, end):
-    # given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date
+    # given the start and the end date, calculate the `TMIN`, `TAVG`, and `TMAX` for dates between the start and end date inclusive
 
     # Create our session (link) from Python to the DB
     session = Session(engine)
